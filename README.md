@@ -128,7 +128,7 @@ resume-builder/
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/resume-builder.git
+git clone https://github.com/Yash-Swarup/resume-builder.git
 cd resume-builder
 ```
 
