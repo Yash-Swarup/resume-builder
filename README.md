@@ -15,10 +15,11 @@ A full-stack web application where users can create, edit, preview, and download
 ### Frontend
 | Technology | Purpose |
 |---|---|
-| React 18 | UI framework |
+| React 19 | UI framework |
 | React Router DOM | Client-side routing |
 | Axios | HTTP requests to backend |
-| react-to-print | PDF generation via browser print |
+| html2canvas | Captures resume as image for PDF |
+| jsPDF | Converts captured image to downloadable PDF |
 | react-hot-toast | Toast notifications |
 | Google Fonts | Playfair Display + DM Sans typography |
 
@@ -72,13 +73,13 @@ A full-stack web application where users can create, edit, preview, and download
 ### Preview & Download
 - Live preview updates in real-time while editing
 - Dedicated `/preview/:id` full-page preview route
-- PDF download via react-to-print
+- Direct PDF download using html2canvas + jsPDF — no print dialog, saves straight to Downloads folder
 - Preview accessible from dashboard, editor, and preview page
 
 ### AI Assistance
 - **Generate Summary** — creates professional summary from user context
 - **Improve Experience** — rewrites job descriptions with action verbs
-- **Suggest Skills** — returns 10 relevant skill tags
+- **Suggest Skills** — returns 10 relevant skill tags with fallback if AI returns empty
 - Powered by OpenRouter API (`openrouter/auto`)
 
 ---
@@ -113,7 +114,8 @@ resume-builder/
         │   └── PreviewPage.js   # Full-page preview
         ├── utils/
         │   ├── api.js           # Axios + JWT interceptor
-        │   └── templates.js     # Template metadata
+        │   ├── templates.js     # Template metadata
+        │   └── downloadPDF.js   # html2canvas + jsPDF logic
         └── App.js               # Routes
 ```
 
@@ -149,7 +151,7 @@ PORT=5000
 ### 3. Frontend Setup
 ```bash
 cd ../frontend
-npm install
+npm install --legacy-peer-deps
 ```
 
 ### 4. Start MongoDB
@@ -224,7 +226,7 @@ AI is proxied through the backend so the API key is never exposed to the browser
 |---|---|---|
 | Generate Summary | Summary tab → ✨ AI Generate | Creates 3-4 sentence professional summary |
 | Improve Experience | Experience entry → ✨ AI Improve | Rewrites with action verbs + achievements |
-| Suggest Skills | Skills tab → ✨ AI Suggest | Returns 10 comma-separated skill tags |
+| Suggest Skills | Skills tab → ✨ AI Suggest | Returns 10 skill tags (fallback list if AI returns empty) |
 
 ---
 
@@ -242,12 +244,13 @@ AI is proxied through the backend so the API key is never exposed to the browser
 
 ## 📝 Assumptions Made
 
-- **PDF Generation** — Uses browser print dialog (`react-to-print`) for pixel-perfect output matching the live preview
+- **PDF Generation** — Uses html2canvas + jsPDF instead of browser print dialog. Resume is captured as a high-quality image and converted directly to a PDF file downloaded to the user's Downloads folder with the resume title as filename
 - **Premium Payment** — Simulated; sets `isPremium: true` in MongoDB without a real payment gateway
 - **Local MongoDB** — Uses MongoDB Community Server locally instead of Atlas due to network restrictions blocking SRV DNS resolution
-- **AI Provider** — Uses OpenRouter (free tier) instead of Anthropic Claude, which requires paid credits
+- **AI Provider** — Uses OpenRouter (free tier) instead of Anthropic Claude which requires paid credits. Skills generation includes a fallback list if the AI model returns an empty response
 - **JWT Storage** — Stored in localStorage for simplicity; production would use httpOnly cookies
 - **No Email Verification** — Registration is immediate without email confirmation
+- **Legacy Peer Deps** — Frontend uses `--legacy-peer-deps` during install due to React 19 compatibility with some packages
 
 ---
 
@@ -262,6 +265,7 @@ Browser (React)  →  Express API (Node.js)  →  MongoDB
 - All sensitive keys live in backend `.env`
 - JWT middleware protects all resume and AI routes
 - Resume data always persisted to MongoDB on save
+- PDF generated entirely client-side using html2canvas + jsPDF
 
 ---
 
