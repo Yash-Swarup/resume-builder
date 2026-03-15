@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import API from '../utils/api';
 import toast from 'react-hot-toast';
 import ResumePreview from './ResumePreview';
-import { useReactToPrint } from 'react-to-print';
+import downloadPDF from '../utils/downloadPDF';
 
 export default function PreviewPage() {
   const { id } = useParams();
@@ -17,7 +17,9 @@ export default function PreviewPage() {
       .catch(() => toast.error('Could not load resume'));
   }, [id]);
 
-  const handlePrint = useReactToPrint({ content: () => printRef.current });
+  const handlePrint = () => {
+  downloadPDF('resume-preview-paper', resume?.title || 'Resume');
+};
 
   if (!resume) return (
     <div style={{ minHeight: '100vh', background: '#0a0a0f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: 'DM Sans,sans-serif', fontSize: 15 }}>
@@ -141,7 +143,7 @@ export default function PreviewPage() {
         </div>
 
         <div className="preview-stage">
-          <div className="preview-paper" ref={printRef}>
+          <div id="resume-preview-paper" className="preview-paper" ref={printRef}>
             <ResumePreview resume={resume} />
           </div>
         </div>

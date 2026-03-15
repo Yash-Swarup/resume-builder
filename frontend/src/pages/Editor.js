@@ -5,7 +5,7 @@ import API from '../utils/api';
 import toast from 'react-hot-toast';
 import ResumePreview from './ResumePreview';
 import TemplateSelector from './TemplateSelector';
-import { useReactToPrint } from 'react-to-print';
+import downloadPDF from '../utils/downloadPDF';
 
 const TABS = [
   { id: 'personal', label: 'Personal', icon: '👤' },
@@ -53,7 +53,9 @@ export default function Editor() {
     toast.success('🎉 Upgraded to Premium!');
   };
 
-  const handlePrint = useReactToPrint({ content: () => printRef.current });
+  const handlePrint = () => {
+  downloadPDF('resume-preview-paper', resume?.title || 'Resume');
+};
 
   const aiGenerate = async (type, context) => {
     if (!context || context.trim() === '') {
@@ -512,7 +514,7 @@ export default function Editor() {
           {/* Right Preview */}
           <div className="editor-right">
             <div className="preview-label">Live Preview</div>
-            <div className="preview-paper" ref={printRef}>
+            <div id="resume-preview-paper" className="preview-paper" ref={printRef}>
               <ResumePreview resume={resume} />
             </div>
           </div>

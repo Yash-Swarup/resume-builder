@@ -15,8 +15,12 @@ router.post('/generate', auth, async (req, res) => {
   } else if (type === 'experience') {
     prompt = `Improve this resume experience: "${context}". Use action verbs and achievements. Return only the improved text.`;
   } else if (type === 'skills') {
-    prompt = `Suggest 10 skills for: ${context}. Return ONLY comma-separated list. Example: JavaScript, React, Node.js`;
-  }
+  prompt = `List 10 professional skills for a ${context}. 
+Format your response exactly like this example and nothing else:
+JavaScript, React, Node.js, Express, MongoDB, Git, Problem Solving, Communication, Teamwork, Agile
+
+Only return the comma separated list. No numbering, no bullets, no explanation, no extra text.`;
+}
 
   try {
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -42,7 +46,13 @@ router.post('/generate', auth, async (req, res) => {
     }
 
     const text = data?.choices?.[0]?.message?.content;
-    if (!text) return res.status(500).json({ message: 'Empty AI response' });
+console.log('AI raw response:', text);
+
+if (!text || text.trim() === '') {
+  // Fallback skills if AI returns empty
+  const fallback = 'JavaScript, React, Node.js, Express, MongoDB, Git, REST APIs, Problem Solving, Communication, Teamwork';
+  return res.json({ result: fallback });
+}
 
     res.json({ result: text.trim() });
 
